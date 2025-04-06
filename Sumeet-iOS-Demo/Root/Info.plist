@@ -19,5 +19,9 @@
 			</array>
 		</dict>
 	</dict>
+    <key>UIAppFonts</key>
+    <array>
+        <string>custom_font.ttf</string>
+    </array>
 </dict>
 </plist>

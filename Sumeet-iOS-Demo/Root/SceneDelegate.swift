@@ -12,7 +12,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     // MARK: - Properties
     
     var window: UIWindow?
-    var rootCoordinator: RootCoordinator?
+    var rootCoordinator: RootCoordinator!
     
     // MARK: - Methods
 
@@ -21,8 +21,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
         let navigationController = UINavigationController()
-        let coordinator = RootCoordinator(navigationController: navigationController)
-        coordinator.start()
+        rootCoordinator = RootCoordinator(navigationController: navigationController)
+        rootCoordinator.start()
         
         let window = UIWindow(windowScene: windowScene)
         window.rootViewController = navigationController
