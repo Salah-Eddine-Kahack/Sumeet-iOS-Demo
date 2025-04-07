@@ -6,33 +6,63 @@
 //
 
 import UIKit
+import CoreLocation
 
 
 struct ContactDetailItem: Identifiable {
     
-    // MARK: Properties
+    // MARK: - Enums
+    
+    enum Row {
+        case singleInformation(
+            label: String,
+            value: String
+        )
+        case doubleInformation(
+            firstLabel: String, firstValue: String,
+            secondLabel: String, secondValue: String
+        )
+        case mapCoordinates(
+            coordinates: CLLocationCoordinate2D
+        )
+    }
+    
+    // MARK: - Properties
     
     let id: UUID
     let firstName: String
     let lastName: String
-    let genderIcon: UIImage
+    let fullName: String
+    let pictureURL: URL
+    let birthday: String
+    let age: String
     let address: String
     let email: String
     let phone: String
-    let pictureURL: String
-    let birthday: String
+    let coordinates: CLLocationCoordinate2D
     
     // MARK: - Lifecycle
     
-    init(contactModel: ContactModel) {
+    init?(contactModel: ContactModel) {
+        
+        guard let imageURL = URL(string: contactModel.picture.large),
+              let latitude = Double(contactModel.location.coordinates.latitude),
+              let longitude = Double(contactModel.location.coordinates.longitude)
+        else {
+            Logger.log("failed to instantiate ContactDetailItem !")
+            return nil
+        }
+        
         id = contactModel.id
         firstName = contactModel.name.first
         lastName = contactModel.name.last
-        genderIcon = ContactFormatterHelper.getGenderIcon(gender: contactModel.gender)
+        fullName = ContactFormatterHelper.getFullName(name: contactModel.name)
+        pictureURL = imageURL
+        birthday = DateFormatterHelper.birthday(date: contactModel.dateOfBirth.date)
+        age = "\(contactModel.dateOfBirth.age)"
         address = AddressFormatterHelper.getFullAddress(location: contactModel.location)
         email = contactModel.email
         phone = contactModel.cell
-        pictureURL = contactModel.picture.large
-        birthday = DateFormatterHelper.birthday(date: contactModel.dateOfBirth.date)
+        coordinates = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
     }
 }

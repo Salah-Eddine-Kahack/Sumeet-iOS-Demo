@@ -16,17 +16,22 @@ struct ContactListItem: Identifiable {
     let fullname: String
     let email: String
     let phone: String
-    let country: String
-    let thumbnailURL: String
+    let thumbnailURL: URL
     
     // MARK: - Lifecycle
     
-    init(contactModel: ContactModel) {
+    init?(contactModel: ContactModel) {
+        
+        guard let imageURL = URL(string: contactModel.picture.medium)
+        else {
+            Logger.log("failed to instantiate ContactListItem, missing imageURL !")
+            return nil
+        }
+        
         id = contactModel.id
         fullname = ContactFormatterHelper.getFullName(name: contactModel.name)
         email = contactModel.email
         phone = contactModel.cell
-        country = contactModel.location.country
-        thumbnailURL = contactModel.picture.medium // Thumbnail is too small
+        thumbnailURL = imageURL
     }
 }

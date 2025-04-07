@@ -17,8 +17,8 @@
                 "country": "Brazil",
                 "postcode": 61308,
                 "coordinates": {
-                    "latitude": "-76.4118",
-                    "longitude": "-68.2055"
+                    "latitude": "-19.62",
+                    "longitude": "-43.23"
                 },
                 "timezone": {
                     "offset": "+7:00",
@@ -73,8 +73,8 @@
                 "country": "Iran",
                 "postcode": 67656,
                 "coordinates": {
-                    "latitude": "54.4099",
-                    "longitude": "161.0823"
+                    "latitude": "35.33",
+                    "longitude": "51.60"
                 },
                 "timezone": {
                     "offset": "-8:00",
@@ -129,8 +129,8 @@
                 "country": "Ireland",
                 "postcode": 28869,
                 "coordinates": {
-                    "latitude": "-36.1686",
-                    "longitude": "-23.1263"
+                    "latitude": "54.28",
+                    "longitude": "-8.48"
                 },
                 "timezone": {
                     "offset": "+1:00",
@@ -185,8 +185,8 @@
                 "country": "Iran",
                 "postcode": 41070,
                 "coordinates": {
-                    "latitude": "-35.4987",
-                    "longitude": "3.0322"
+                    "latitude": "33.98",
+                    "longitude": "51.43"
                 },
                 "timezone": {
                     "offset": "+6:00",
@@ -241,8 +241,8 @@
                 "country": "Canada",
                 "postcode": "E5N 0J1",
                 "coordinates": {
-                    "latitude": "-28.9431",
-                    "longitude": "141.6978"
+                    "latitude": "45.40",
+                    "longitude": "-71.90"
                 },
                 "timezone": {
                     "offset": "-7:00",
@@ -297,8 +297,8 @@
                 "country": "Spain",
                 "postcode": 51426,
                 "coordinates": {
-                    "latitude": "-44.2886",
-                    "longitude": "-17.2576"
+                    "latitude": "40.35",
+                    "longitude": "-3.70"
                 },
                 "timezone": {
                     "offset": "+8:00",
@@ -353,8 +353,8 @@
                 "country": "Canada",
                 "postcode": "D0I 8T1",
                 "coordinates": {
-                    "latitude": "44.7488",
-                    "longitude": "128.6309"
+                    "latitude": "62.45",
+                    "longitude": "-135.35"
                 },
                 "timezone": {
                     "offset": "-8:00",
@@ -409,8 +409,8 @@
                 "country": "United States",
                 "postcode": 92983,
                 "coordinates": {
-                    "latitude": "-23.6230",
-                    "longitude": "-64.6662"
+                    "latitude": "33.74",
+                    "longitude": "-117.87"
                 },
                 "timezone": {
                     "offset": "+4:00",
@@ -465,8 +465,8 @@
                 "country": "India",
                 "postcode": 49795,
                 "coordinates": {
-                    "latitude": "-77.7221",
-                    "longitude": "-131.7720"
+                    "latitude": "22.57",
+                    "longitude": "88.37"
                 },
                 "timezone": {
                     "offset": "+3:00",
@@ -521,8 +521,8 @@
                 "country": "United States",
                 "postcode": 85842,
                 "coordinates": {
-                    "latitude": "-63.0081",
-                    "longitude": "31.4666"
+                    "latitude": "44.31",
+                    "longitude": "-69.78"
                 },
                 "timezone": {
                     "offset": "+5:00",

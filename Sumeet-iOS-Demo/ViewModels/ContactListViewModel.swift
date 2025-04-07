@@ -37,7 +37,29 @@ class ContactListViewModel {
     // MARK: - Methods
     
     func loadContacts() {
-        // TODO
+        
+        isLoading = true
+        
+        contactService.fetchContacts()
+        .sink { [weak self] completion in
+            
+            guard let self else { return }
+            
+            switch completion {
+                case .failure(let error): self.errorMessage = error.localizedDescription
+                case .finished: break
+            }
+            
+            self.isLoading = false
+        }
+        receiveValue: { [weak self] contacts in
+            
+            guard let self else { return }
+            
+            self.contactModels = contacts
+            self.contacts = contacts.compactMap { ContactListItem(contactModel: $0) }
+        }
+        .store(in: &cancellables)
     }
     
     // MARK: - Actions

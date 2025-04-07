@@ -21,13 +21,4 @@ struct ContactFormatterHelper {
         
         return fullName
     }
-    
-    static func getGenderIcon(gender: String) -> UIImage {
-        
-        switch gender {
-            case "male": return Constants.Icons.male
-            case "female": return Constants.Icons.female
-            default: return Constants.Icons.person
-        }
-    }
 }

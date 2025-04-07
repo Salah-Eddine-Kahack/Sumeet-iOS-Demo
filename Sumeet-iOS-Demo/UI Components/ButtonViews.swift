@@ -12,87 +12,96 @@ import UIKit
 
 struct ButtonViews {
     
-    /// Works like an Abstract Class
-    class BaseView: UIView {
+    typealias ButtonActionCallback = () -> Void
+
+    /// Acts like an abstract class
+    class Base: UIView {
         
-        typealias ButtonActionCallback = () -> Void
+        // Properties
         
-        // MARK: - Properties
-        
-        private var buttonActionCallback: ButtonActionCallback?
-        fileprivate let titleLabel = UILabel()
+        private var action: ButtonActionCallback?
         private let tappableButton = UIButton(type: .custom)
         
-        // MARK: - Life cycle
+        // Life cycle
         
-        init(title: String, action: ButtonActionCallback? = nil) {
-            buttonActionCallback = action
+        init(action: ButtonActionCallback?) {
+            self.action = action
             super.init(frame: .zero)
-            setupView(title: title)
-            setupButton()
         }
-        
+
         required init?(coder: NSCoder) {
             fatalError("init(coder:) has not been implemented")
         }
         
-        // MARK: - Methods
-        
-        fileprivate func setupView(title: String) {
-            fatalError("Implement in subclasses")
-        }
-        
-        private func setupButton() {
+        // Methods
+
+        /// Needs to be called in subclasses after setting UI
+        fileprivate func setupTappableButton() {
             tappableButton.backgroundColor = .clear
             tappableButton.addTarget(self, action: #selector(didTap), for: .touchUpInside)
             tappableButton.addTarget(self, action: #selector(touchDown), for: .touchDown)
             tappableButton.addTarget(self, action: #selector(touchUp), for: [.touchUpInside, .touchUpOutside, .touchCancel, .touchDragExit, .touchDragOutside])
             addSubview(tappableButton, insets: .zero)
         }
-        
+
         private func animateTouch(pressed: Bool) {
-            
-            let scale = pressed ? 0.97 : 1.0
-            let alpha = pressed ? 0.7 : 1.0
+            let transform = pressed ? CGAffineTransform(scaleX: 0.97, y: 0.97) : .identity
+            let alpha: CGFloat = pressed ? 0.7 : 1.0
             
             UIView.animate(
                 withDuration: 0.25,
-                delay: .zero,
+                delay: 0,
                 options: [.curveEaseOut, .allowUserInteraction],
                 animations: {
-                    // Apply changes
-                    self.transform = CGAffineTransform(scaleX: scale, y: scale)
+                    self.transform = transform
                     self.alpha = alpha
-                    
-                },
-                completion: nil
+                }
             )
         }
-        
-        // MARK: - Actions
+
+        // Actions
         
         @objc private func didTap() {
-            buttonActionCallback?()
+            action?()
         }
-        
+
         @objc private func touchDown() {
             animateTouch(pressed: true)
         }
-        
+
         @objc private func touchUp() {
             animateTouch(pressed: false)
         }
     }
 }
 
+
 // MARK: - Primary ButtonView
 
 extension ButtonViews {
     
     /// Works like a UIButton
-    final class Primary: BaseView {
+    final class Primary: Base {
         
-        fileprivate override func setupView(title: String) {
+        // Properties
+        
+        private let titleLabel = UILabel()
+        
+        // Life cycle
+        
+        init(title: String, action: ButtonActionCallback? = nil) {
+            super.init(action: action)
+            setupView(title: title)
+            setupTappableButton()
+        }
+        
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+        
+        // Methods
+        
+        private func setupView(title: String) {
             
             // Setup view
             backgroundColor = Constants.Colors.primary
@@ -102,7 +111,7 @@ extension ButtonViews {
             // Setup label
             titleLabel.text = title
             titleLabel.textAlignment = .center
-            titleLabel.textColor = Constants.Colors.button
+            titleLabel.textColor = Constants.Colors.buttonTitle
             titleLabel.font = UIFont(name: "Rubik-Light_SemiBold", size: Constants.Sizes.defaultFontSize)
 
             // Add label
@@ -110,3 +119,54 @@ extension ButtonViews {
         }
     }
 }
+
+
+// MARK: - LargeIcon ButtonView
+
+extension ButtonViews {
+    
+    final class LargeIcon: Base {
+        
+        // Properties
+        
+        private let iconImageView = UIImageView()
+        private let titleLabel = UILabel()
+        
+        // Life cycle
+        
+        init(title: String, icon: UIImage, action: ButtonActionCallback? = nil) {
+            super.init(action: action)
+            setupView(title: title, icon: icon)
+            setupTappableButton()
+        }
+        
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+        
+        // Methods
+        
+        private func setupView(title: String, icon: UIImage) {
+            iconImageView.image = icon
+            iconImageView.contentMode = .scaleAspectFit
+            iconImageView.tintColor = Constants.Colors.primary
+            
+            titleLabel.text = title
+            titleLabel.textColor = Constants.Colors.primary
+            titleLabel.font = .preferredFont(forTextStyle: .callout)
+            
+            let stackView = UIStackView(arrangedSubviews: [iconImageView, titleLabel])
+            stackView.axis = .vertical
+            stackView.spacing = Constants.Sizes.smallSpacing
+            stackView.alignment = .center
+            
+            addSubview(stackView, insets: UIEdgeInsets(
+                top: Constants.Sizes.smallSpacing,
+                left: Constants.Sizes.smallSpacing,
+                bottom: Constants.Sizes.smallSpacing,
+                right: Constants.Sizes.smallSpacing
+            ))
+        }
+    }
+}
+

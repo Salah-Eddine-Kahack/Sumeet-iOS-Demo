@@ -23,7 +23,7 @@ struct UIHelper {
 
             appearance.largeTitleTextAttributes = [
                 .font: scaledFont,
-                .foregroundColor: Constants.Colors.primary
+                .foregroundColor: Constants.Colors.primary,
             ]
         }
 
@@ -36,20 +36,38 @@ struct UIHelper {
 
 
 extension UIView {
-    
+
     func addSubview(_ view: UIView, insets: UIEdgeInsets) {
-            
+        addSubviewUsingSafeArea(
+            view,
+            insets: insets,
+            ignoreTopSafeArea: true,
+            ignoreBottomSafeArea: true,
+            ignoreLeftSafeArea: true,
+            ignoreRightSafeArea: true
+        )
+    }
+
+    func addSubviewUsingSafeArea(
+        _ view: UIView,
+        insets: UIEdgeInsets,
+        ignoreTopSafeArea: Bool = false,
+        ignoreBottomSafeArea: Bool = false,
+        ignoreLeftSafeArea: Bool = false,
+        ignoreRightSafeArea: Bool = false
+    ) {
         view.translatesAutoresizingMaskIntoConstraints = false
         addSubview(view)
-        
-        let top = view.topAnchor.constraint(equalTo: topAnchor, constant: insets.top)
-        let bottom = view.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -insets.bottom)
-        let left = view.leftAnchor.constraint(equalTo: leftAnchor, constant: insets.left)
-        let right = view.rightAnchor.constraint(equalTo: rightAnchor, constant: -insets.right)
-            
-        NSLayoutConstraint.activate([top, bottom, left, right])
+
+        NSLayoutConstraint.activate([
+            view.topAnchor.constraint(equalTo: (ignoreTopSafeArea ? topAnchor : safeAreaLayoutGuide.topAnchor), constant: insets.top),
+            view.bottomAnchor.constraint(equalTo: (ignoreBottomSafeArea ? bottomAnchor : safeAreaLayoutGuide.bottomAnchor), constant: -insets.bottom),
+            view.leftAnchor.constraint(equalTo: (ignoreLeftSafeArea ? leftAnchor : safeAreaLayoutGuide.leftAnchor), constant: insets.left),
+            view.rightAnchor.constraint(equalTo: (ignoreRightSafeArea ? rightAnchor : safeAreaLayoutGuide.rightAnchor), constant: -insets.right)
+        ])
     }
-    
+
+
     func addCenteredSubview(_ view: UIView, width: CGFloat, height: CGFloat) {
         
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -63,34 +81,46 @@ extension UIView {
         NSLayoutConstraint.activate([widthConstraint, heightConstraint, centerXConstraint, centerYConstraint])
     }
     
-    func addCenteredSubview(_ view: UIView, minInsets: UIEdgeInsets) {
-        
+    func addCenteredSubview(
+        _ view: UIView,
+        minInsets: UIEdgeInsets,
+        axis: NSLayoutConstraint.Axis? = nil
+    ) {
         view.translatesAutoresizingMaskIntoConstraints = false
         addSubview(view)
 
-        let centerXConstraint = view.centerXAnchor.constraint(equalTo: centerXAnchor)
-        let centerYConstraint = view.centerYAnchor.constraint(equalTo: centerYAnchor)
+        var constraints: [NSLayoutConstraint] = []
 
-        var constraints = [centerXConstraint, centerYConstraint]
-
-        if minInsets.left > .zero {
-            let leftConstraint = view.leftAnchor.constraint(greaterThanOrEqualTo: leftAnchor, constant: minInsets.left)
-            constraints.append(leftConstraint)
-        }
-
-        if minInsets.right > .zero  {
-            let rightConstraint = view.rightAnchor.constraint(lessThanOrEqualTo: rightAnchor, constant: -minInsets.right)
-            constraints.append(rightConstraint)
-        }
-
-        if minInsets.top > .zero  {
-            let topConstraint = view.topAnchor.constraint(greaterThanOrEqualTo: topAnchor, constant: minInsets.top)
-            constraints.append(topConstraint)
-        }
-
-        if minInsets.bottom > .zero  {
-            let bottomConstraint = view.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: -minInsets.bottom)
-            constraints.append(bottomConstraint)
+        switch axis {
+            case .horizontal:
+                // Center horizontally
+                constraints.append(view.centerXAnchor.constraint(equalTo: centerXAnchor))
+                // Pin top and bottom exactly
+                constraints.append(view.topAnchor.constraint(equalTo: topAnchor, constant: minInsets.top))
+                constraints.append(view.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -minInsets.bottom))
+                // Add safety insets if needed
+                constraints.append(view.leftAnchor.constraint(greaterThanOrEqualTo: leftAnchor, constant: minInsets.left))
+                constraints.append(view.rightAnchor.constraint(lessThanOrEqualTo: rightAnchor, constant: -minInsets.right))
+                
+            case .vertical:
+                // Center vertically
+                constraints.append(view.centerYAnchor.constraint(equalTo: centerYAnchor))
+                // Pin leading and trailing exactly
+                constraints.append(view.leadingAnchor.constraint(equalTo: leadingAnchor, constant: minInsets.left))
+                constraints.append(view.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -minInsets.right))
+                // Add safety insets if needed
+                constraints.append(view.topAnchor.constraint(greaterThanOrEqualTo: topAnchor, constant: minInsets.top))
+                constraints.append(view.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: -minInsets.bottom))
+                
+            case .none, .some:
+                // Center both
+                constraints.append(view.centerXAnchor.constraint(equalTo: centerXAnchor))
+                constraints.append(view.centerYAnchor.constraint(equalTo: centerYAnchor))
+                // Apply min insets with greater/less-than-or-equal
+                constraints.append(view.leftAnchor.constraint(greaterThanOrEqualTo: leftAnchor, constant: minInsets.left))
+                constraints.append(view.rightAnchor.constraint(lessThanOrEqualTo: rightAnchor, constant: -minInsets.right))
+                constraints.append(view.topAnchor.constraint(greaterThanOrEqualTo: topAnchor, constant: minInsets.top))
+                constraints.append(view.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: -minInsets.bottom))
         }
 
         NSLayoutConstraint.activate(constraints)

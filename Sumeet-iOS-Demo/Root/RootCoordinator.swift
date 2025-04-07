@@ -45,7 +45,9 @@ class RootCoordinator {
     }
         
     func showContactDetail(contact: ContactModel) {
-        let contactDetailViewModel = ContactDetailViewModel(contact: contact, contactService: contactService)
+        
+        guard let contactDetailViewModel = ContactDetailViewModel(contact: contact) else { return }
+        
         let contactDetailViewController = ContactDetailViewController(viewModel: contactDetailViewModel)
         navigationController.pushViewController(contactDetailViewController, animated: true)
     }
