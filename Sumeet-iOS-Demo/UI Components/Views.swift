@@ -143,11 +143,19 @@ extension Views {
     
     class Map: UIView {
         
+        // Enums
+        
+        enum ZoomLevel: CLLocationDistance {
+            case close = 5000
+            case medium = 10000
+            case far = 50000
+        }
+        
         // Life cycle
         
-        init(coordinates: CLLocationCoordinate2D) {
+        init(coordinates: CLLocationCoordinate2D, zoomLevel: ZoomLevel) {
             super.init(frame: .zero)
-            setupUI(coordinates: coordinates)
+            setupUI(coordinates: coordinates, distance: zoomLevel.rawValue)
         }
         
         required init?(coder: NSCoder) {
@@ -156,7 +164,7 @@ extension Views {
         
         // Methods
         
-        private func setupUI(coordinates: CLLocationCoordinate2D) {
+        private func setupUI(coordinates: CLLocationCoordinate2D, distance: CLLocationDistance) {
             
             // Setup layout
             let mapView = MKMapView()
@@ -179,8 +187,8 @@ extension Views {
             mapView.setRegion(
                 MKCoordinateRegion(
                     center: coordinates,
-                    latitudinalMeters: 100000,
-                    longitudinalMeters: 100000
+                    latitudinalMeters: distance,
+                    longitudinalMeters: distance
                 ),
                 animated: false
             )

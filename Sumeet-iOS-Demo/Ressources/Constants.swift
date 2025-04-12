@@ -35,7 +35,6 @@ struct Constants {
         static let largeSpacing: CGFloat = regularSpacing * 2.0
         static let cornerRadius: CGFloat = 10.0
         static let largeCornerRadius: CGFloat = cornerRadius + regularSpacing
-        static let shadowRadius: CGFloat = 6.0
         static let defaultFontSize: CGFloat = 16.0
         static let mapViewHeight: CGFloat = 200.0
         
@@ -47,15 +46,16 @@ struct Constants {
         )
         
         struct NavigationBar {
-            static let customButtonTopSpacing: CGFloat = 44.0
+            static let customButtonTopSpacing: CGFloat = 46.0
             static let customButtonPadding: CGFloat = smallSpacing
-            static let customButtonIcon: CGFloat = 48.0
+            static let customButtonIcon: CGFloat = 46.0
         }
         
         struct ContactList {
             static let loadButtonWidth: CGFloat = 200.0
             static let thumbnailSize: CGFloat = 64.0
             static let thumbnailCornerRadius: CGFloat = thumbnailSize / 2.0
+            static let infiniteScrollThreshold: CGFloat = 240.0
         }
         
         struct ContactDetail {
@@ -104,15 +104,23 @@ struct Constants {
             static let firstNameLabel: String = NSLocalizedString("First name:", comment: context)
             static let lastNameLabel: String = NSLocalizedString("Last name:", comment: context)
             static let phoneLabel: String = NSLocalizedString("Phone number:", comment: context)
+            static let nationalityLabel: String = NSLocalizedString("Nationality:", comment: context)
             static let emailLabel: String = NSLocalizedString("Email:", comment: context)
             static let birthdayLabel: String = NSLocalizedString("Birthday:", comment: context)
             static let ageLabel: String = NSLocalizedString("Age:", comment: context)
             static let addressLabel: String = NSLocalizedString("Address:", comment: context)
+            static let unknownCountryFlag: String = "🌍"
         }
         
         struct Errors {
-            static let mockDataLoadingFailed: String = NSLocalizedString("Failed to load mock data.", comment: "")
+            private static let context: String = "error-messages"
+            static let mockDataLoadingFailed: String = NSLocalizedString("Failed to load mock data.", comment: context)
             static let noInternetConnection: String = NSLocalizedString("No internet connection, please try again later", comment: context)
+        }
+        
+        struct Testing {
+            static let unknownFullName: String = "Unknown Humanoid"
+            static let unknownAddress: String = "Unknown Galaxy"
         }
     }
     

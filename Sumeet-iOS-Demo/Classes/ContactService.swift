@@ -88,7 +88,8 @@ class ContactService: ContactServiceProtocol {
         }
         
         if !ReachabilityHelper.shared.hasInternetAccess {
-            return Fail(error: ContactServiceError.noInternet).eraseToAnyPublisher()
+            return Fail(error: ContactServiceError.noInternet)
+                .eraseToAnyPublisher()
         }
         
         return URLSession.shared.dataTaskPublisher(for: url)
@@ -103,7 +104,6 @@ class ContactService: ContactServiceProtocol {
             }
             .decode(type: ContactAPIResponse.self, decoder: JSONDecoder())
             .map { $0.results }
-            .eraseToAnyPublisher()
             .catch { error -> AnyPublisher<[ContactModel], Error> in
                 
                 Logger.log("Failed to fetch contacts: \(error)", level: .error)

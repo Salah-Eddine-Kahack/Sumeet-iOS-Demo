@@ -24,6 +24,10 @@ class ContactDetailViewModel {
         contact.pictureURL
     }
     
+    var avatarPlaceholder: UIImage {
+        contact.placeholderPicture
+    }
+    
     var detailItemRows: [ContactDetailItem.Row] {[
         .doubleInformation(
             firstLabel: Constants.Texts.ContactDetail.firstNameLabel,
@@ -31,9 +35,11 @@ class ContactDetailViewModel {
             secondLabel: Constants.Texts.ContactDetail.lastNameLabel,
             secondValue: contact.lastName
         ),
-        .singleInformation(
-            label: Constants.Texts.ContactDetail.phoneLabel,
-            value: contact.phone
+        .doubleInformation(
+            firstLabel: Constants.Texts.ContactDetail.phoneLabel,
+            firstValue: contact.phone,
+            secondLabel: Constants.Texts.ContactDetail.nationalityLabel,
+            secondValue: contact.countryFlag
         ),
         .singleInformation(
             label: Constants.Texts.ContactDetail.emailLabel,
@@ -49,7 +55,10 @@ class ContactDetailViewModel {
             label: Constants.Texts.ContactDetail.addressLabel,
             value: contact.address
         ),
-        .mapCoordinates(coordinates: contact.coordinates)
+        .mapCoordinates(
+            coordinates: contact.coordinates,
+            zoomLevel: .medium
+        )
     ]}
     
     
@@ -71,7 +80,7 @@ class ContactDetailViewModel {
 
         guard let url = URL(string: "tel://\(contact.phone)")
         else {
-            Logger.log("Invalid phone number URL.", level: .error)
+            Logger.log("Invalid phone number URL.", level: .warning)
             return
         }
 
@@ -79,7 +88,7 @@ class ContactDetailViewModel {
             UIApplication.shared.open(url, options: [:], completionHandler: nil)
         }
         else {
-            Logger.log("Cannot open phone URL.", level: .error)
+            Logger.log("Cannot open phone URL.", level: .warning)
         }
     }
 
@@ -87,7 +96,7 @@ class ContactDetailViewModel {
 
         guard let url = URL(string: "sms:\(contact.phone)")
         else {
-            Logger.log("Invalid phone number URL.", level: .error)
+            Logger.log("Invalid phone number URL.", level: .warning)
             return
         }
 
@@ -95,7 +104,7 @@ class ContactDetailViewModel {
             UIApplication.shared.open(url, options: [:], completionHandler: nil)
         }
         else {
-            Logger.log("Cannot open SMS URL.", level: .error)
+            Logger.log("Cannot open SMS URL.", level: .warning)
         }
     }
 
@@ -103,7 +112,7 @@ class ContactDetailViewModel {
 
         guard let url = URL(string: "mailto:\(contact.email)")
         else {
-            Logger.log("Invalid email URL.", level: .error)
+            Logger.log("Invalid email URL.", level: .warning)
             return
         }
 

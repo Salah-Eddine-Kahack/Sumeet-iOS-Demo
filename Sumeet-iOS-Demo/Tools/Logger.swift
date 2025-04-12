@@ -8,17 +8,17 @@
 import Foundation
 
 
+enum LogLevel: String {
+    case warning = "WARNING ⚠️"
+    case error = "ERROR ❌"
+    case debug = "DEBUG 🔍"
+}
+
 
 struct Logger {
 
-    enum LogLevel: String {
-        case warning = "WARNING"
-        case error = "ERROR"
-        case debug = "DEBUG"
-    }
-
     static func log(_ message: String,
-                    level: LogLevel = .debug,
+                    level: LogLevel,
                     file: String = #file,
                     function: String = #function,
                     line: Int = #line) {
@@ -29,8 +29,8 @@ struct Logger {
             timeStyle: .medium
         )
         
-        let thread = Thread.isMainThread ? "Main" : "Background"
-        let logMessage = "[\(timestamp)] [\(level.rawValue)] [\(thread)] \(message) (\(file):\(line) in \(function))"
+        let thread = Thread.isMainThread ? "Main-Thread" : "Background-Thread"
+        let logMessage = "[\(level.rawValue)] [\(timestamp)] [\(thread)] \(message) (\(file):\(line) in \(function))"
 
         if level == .debug {
             #if DEBUG

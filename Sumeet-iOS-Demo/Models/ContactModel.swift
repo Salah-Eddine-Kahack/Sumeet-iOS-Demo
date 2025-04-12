@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 
 struct ContactAPIResponse: Decodable {
@@ -13,18 +14,18 @@ struct ContactAPIResponse: Decodable {
 }
 
 
-struct ContactModel: Decodable, Identifiable {
+struct ContactModel: Codable, Identifiable {
     
     // MARK: - Structs
     
-    struct Name: Decodable {
+    struct Name: Codable {
         let first: String
         let last: String
     }
 
-    struct Location: Decodable {
+    struct Location: Codable {
         
-        struct Street: Decodable {
+        struct Street: Codable {
             let number: Int
             let name: String
         }
@@ -35,18 +36,18 @@ struct ContactModel: Decodable, Identifiable {
         let coordinates: Coordinates
     }
 
-    struct Coordinates: Decodable {
+    struct Coordinates: Codable {
         let latitude: String
         let longitude: String
     }
 
-    struct Picture: Decodable {
+    struct Picture: Codable {
         let large: String
         let medium: String
         let thumbnail: String
     }
     
-    struct DateOfBirth: Decodable {
+    struct DateOfBirth: Codable {
         
         let date: Date
         let age: Int
@@ -72,11 +73,18 @@ struct ContactModel: Decodable, Identifiable {
                 )
             }
         }
+
+        func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            let dateString = DateFormatterHelper.string(from: date)
+            try container.encode(dateString, forKey: .date)
+            try container.encode(age, forKey: .age)
+        }
     }
     
     // MARK: - Properties
     
-    let id = UUID()
+    let id: UUID
     let gender: String
     let name: Name
     let location: Location
@@ -84,20 +92,42 @@ struct ContactModel: Decodable, Identifiable {
     let cell: String
     let dateOfBirth: DateOfBirth
     let picture: Picture
+    let countryCode: String
 
     private enum CodingKeys: String, CodingKey {
-        
-        case name, location, email, cell, picture, gender, login
+        case name, location, email, cell, picture, gender
         case dateOfBirth = "dob"
-        case nationality = "nat"
+        case countryCode = "nat"
     }
 
     // MARK: - Life cycle
+    
+    init(id: UUID = UUID(),
+         gender: String,
+         name: Name,
+         location: Location,
+         email: String,
+         cell: String,
+         dateOfBirth: DateOfBirth,
+         picture: Picture,
+         countryCode: String)
+    {
+        self.id = id
+        self.gender = gender
+        self.name = name
+        self.location = location
+        self.email = email
+        self.cell = cell
+        self.dateOfBirth = dateOfBirth
+        self.picture = picture
+        self.countryCode = countryCode
+    }
     
     init(from decoder: Decoder) throws {
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
+        id = UUID()
         name = try container.decode(Name.self, forKey: .name)
         location = try container.decode(Location.self, forKey: .location)
         email = try container.decode(String.self, forKey: .email)
@@ -105,5 +135,6 @@ struct ContactModel: Decodable, Identifiable {
         dateOfBirth = try container.decode(DateOfBirth.self, forKey: .dateOfBirth)
         picture = try container.decode(Picture.self, forKey: .picture)
         gender = try container.decode(String.self, forKey: .gender)
+        countryCode = try container.decode(String.self, forKey: .countryCode)
     }
 }

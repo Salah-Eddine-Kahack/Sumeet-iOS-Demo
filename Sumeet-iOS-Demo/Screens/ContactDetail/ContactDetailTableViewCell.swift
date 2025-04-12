@@ -41,7 +41,10 @@ class ContactDetailTableViewCell: UITableViewCell {
         switch contactDetailInformation {
                 
             case .singleInformation(label: let label, value: let value):
-                informationView = Views.SingleLabel(title: label, value: value)
+                informationView = Views.SingleLabel(
+                    title: label,
+                    value: value
+                )
                 
             case .doubleInformation(
                 firstLabel: let firstLabel, firstValue: let firstValue,
@@ -52,8 +55,11 @@ class ContactDetailTableViewCell: UITableViewCell {
                     secondTitle: secondLabel, secondValue: secondValue
                 )
                 
-            case .mapCoordinates(coordinates: let coordinates):
-                informationView = Views.Map(coordinates: coordinates)
+            case .mapCoordinates(coordinates: let coordinates, let zoomLevel):
+                informationView = Views.Map(
+                    coordinates: coordinates,
+                    zoomLevel: zoomLevel
+                )
         }
         
         contentView.addSubview(

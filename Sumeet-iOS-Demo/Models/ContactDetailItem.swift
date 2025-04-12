@@ -23,7 +23,8 @@ struct ContactDetailItem: Identifiable {
             secondLabel: String, secondValue: String
         )
         case mapCoordinates(
-            coordinates: CLLocationCoordinate2D
+            coordinates: CLLocationCoordinate2D,
+            zoomLevel: Views.Map.ZoomLevel
         )
     }
     
@@ -33,6 +34,7 @@ struct ContactDetailItem: Identifiable {
     let firstName: String
     let lastName: String
     let fullName: String
+    let placeholderPicture: UIImage
     let pictureURL: URL
     let birthday: String
     let age: String
@@ -40,6 +42,7 @@ struct ContactDetailItem: Identifiable {
     let email: String
     let phone: String
     let coordinates: CLLocationCoordinate2D
+    let countryFlag: String
     
     // MARK: - Lifecycle
     
@@ -49,14 +52,15 @@ struct ContactDetailItem: Identifiable {
               let latitude = Double(contactModel.location.coordinates.latitude),
               let longitude = Double(contactModel.location.coordinates.longitude)
         else {
-            Logger.log("failed to instantiate ContactDetailItem !")
+            Logger.log("failed to instantiate ContactDetailItem !", level: .debug)
             return nil
         }
         
         id = contactModel.id
         firstName = contactModel.name.first
-        lastName = contactModel.name.last
+        lastName = contactModel.name.last.uppercased()
         fullName = ContactFormatterHelper.getFullName(name: contactModel.name)
+        placeholderPicture = ContactFormatterHelper.getGender(contactModel).avatar
         pictureURL = imageURL
         birthday = DateFormatterHelper.birthday(date: contactModel.dateOfBirth.date)
         age = "\(contactModel.dateOfBirth.age)"
@@ -64,5 +68,6 @@ struct ContactDetailItem: Identifiable {
         email = contactModel.email
         phone = contactModel.cell
         coordinates = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+        countryFlag = AddressFormatterHelper.getCountryFlag(contactModel)
     }
 }

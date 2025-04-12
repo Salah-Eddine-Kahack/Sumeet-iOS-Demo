@@ -18,6 +18,15 @@ struct DateFormatterHelper {
         return date
     }
     
+    static func string(from date: Date) -> String {
+        
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        let string = formatter.string(from: date)
+        
+        return string
+    }
+    
     static func simpleDateString(date: Date) -> String {
         
         let formatter = DateFormatter()

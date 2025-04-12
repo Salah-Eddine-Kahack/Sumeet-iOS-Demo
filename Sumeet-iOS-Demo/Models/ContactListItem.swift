@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 
 struct ContactListItem: Identifiable {
@@ -17,6 +18,7 @@ struct ContactListItem: Identifiable {
     let email: String
     let phone: String
     let thumbnailURL: URL
+    let placeholderThumbnail: UIImage
     
     // MARK: - Lifecycle
     
@@ -24,7 +26,7 @@ struct ContactListItem: Identifiable {
         
         guard let imageURL = URL(string: contactModel.picture.medium)
         else {
-            Logger.log("failed to instantiate ContactListItem, missing imageURL !")
+            Logger.log("failed to instantiate ContactListItem, missing imageURL !", level: .debug)
             return nil
         }
         
@@ -33,5 +35,6 @@ struct ContactListItem: Identifiable {
         email = contactModel.email
         phone = contactModel.cell
         thumbnailURL = imageURL
+        placeholderThumbnail = ContactFormatterHelper.getGender(contactModel).avatar
     }
 }

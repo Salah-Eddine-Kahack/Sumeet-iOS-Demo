@@ -19,7 +19,6 @@ class ContactDetailViewController: UIViewController {
     private lazy var avatarImageView: UIImageView = {
         
         let avatarImageView = UIImageView()
-        avatarImageView.translatesAutoresizingMaskIntoConstraints = false
         avatarImageView.contentMode = .scaleAspectFill
         avatarImageView.layer.cornerRadius = Constants.Sizes.ContactDetail.avatarCornerRadius
         avatarImageView.layer.masksToBounds = true
@@ -29,9 +28,7 @@ class ContactDetailViewController: UIViewController {
             avatarImageView.heightAnchor.constraint(equalToConstant: Constants.Sizes.ContactDetail.avatarSize)
         ])
         
-        avatarImageView.layer.borderWidth = 1
-        avatarImageView.layer.borderColor = Constants.Colors.borderColor.cgColor
-        
+        avatarImageView.addCustomBorders()
         return avatarImageView
     }()
     
@@ -40,21 +37,24 @@ class ContactDetailViewController: UIViewController {
         let textButtonView = ButtonViews.LargeIconWithTitle(
             title: Constants.Texts.ContactDetail.textButton,
             icon: Constants.Icons.text
-        ) { [unowned self] in
+        ) { [weak self] in
+            guard let self else { return }
             self.viewModel.handleTextContact()
         }
         
         let callButtonView = ButtonViews.LargeIconWithTitle(
             title: Constants.Texts.ContactDetail.callButton,
             icon: Constants.Icons.phone
-        ) { [unowned self] in
+        ) { [weak self] in
+            guard let self else { return }
             self.viewModel.handleCallContact()
         }
         
         let emailButtonView = ButtonViews.LargeIconWithTitle(
             title: Constants.Texts.ContactDetail.emailButton,
             icon: Constants.Icons.email
-        ) { [unowned self] in
+        ) { [weak self] in
+            guard let self else { return }
             self.viewModel.handleEmailContact(viewController: self)
         }
         
@@ -115,8 +115,7 @@ class ContactDetailViewController: UIViewController {
         tableView.backgroundColor = Constants.Colors.contentBackground
         tableView.layer.cornerRadius = Constants.Sizes.largeCornerRadius
         tableView.layer.masksToBounds = true
-        tableView.layer.borderWidth = 1
-        tableView.layer.borderColor = Constants.Colors.borderColor.cgColor
+        tableView.addCustomBorders()
 
         return tableView
     }()
@@ -173,7 +172,10 @@ class ContactDetailViewController: UIViewController {
         )
         
         // Load avatar image
-        avatarImageView.kf.setImage(with: viewModel.avatarURL)
+        avatarImageView.kf.setImage(
+            with: viewModel.avatarURL,
+            placeholder: viewModel.avatarPlaceholder
+        )
         
         // Load the detail informations
         tableView.reloadData()

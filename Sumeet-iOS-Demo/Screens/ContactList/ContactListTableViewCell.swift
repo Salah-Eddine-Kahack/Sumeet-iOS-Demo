@@ -16,7 +16,6 @@ class ContactListTableViewCell: UITableViewCell {
     private lazy var avatarImageView: UIImageView = {
         
         let avatarImageView = UIImageView()
-        avatarImageView.translatesAutoresizingMaskIntoConstraints = false
         avatarImageView.contentMode = .scaleAspectFill
         avatarImageView.layer.cornerRadius = Constants.Sizes.ContactList.thumbnailCornerRadius
         avatarImageView.layer.masksToBounds = true
@@ -26,9 +25,7 @@ class ContactListTableViewCell: UITableViewCell {
             avatarImageView.heightAnchor.constraint(equalToConstant: Constants.Sizes.ContactList.thumbnailSize)
         ])
         
-        avatarImageView.layer.borderWidth = 1
-        avatarImageView.layer.borderColor = Constants.Colors.borderColor.cgColor
-        
+        avatarImageView.addCustomBorders()
         return avatarImageView
     }()
     
@@ -92,8 +89,7 @@ class ContactListTableViewCell: UITableViewCell {
         containerView.backgroundColor = Constants.Colors.contentBackground
         containerView.layer.cornerRadius = Constants.Sizes.cornerRadius
         containerView.layer.masksToBounds = true
-        containerView.layer.borderWidth = 1
-        containerView.layer.borderColor = Constants.Colors.borderColor.cgColor
+        containerView.addCustomBorders()
         
         return containerView
     }()
@@ -134,7 +130,11 @@ class ContactListTableViewCell: UITableViewCell {
     
     func setup(contact: ContactListItem) {
         
-        avatarImageView.kf.setImage(with: contact.thumbnailURL)
+        avatarImageView.kf.setImage(
+            with: contact.thumbnailURL,
+            placeholder: contact.placeholderThumbnail
+        )
+        
         nameLabel.text = contact.fullname
         phoneLabel.text = contact.phone
         emailLabel.text = contact.email
@@ -154,7 +154,7 @@ class ContactListTableViewCell: UITableViewCell {
             }
             completion: {
                 UIHelper.animateUIChanges(duration: .short) {
-                    self.contentView.alpha = 1
+                    self.contentView.alpha = 1.0
                     self.transform = .identity
                 }
             }

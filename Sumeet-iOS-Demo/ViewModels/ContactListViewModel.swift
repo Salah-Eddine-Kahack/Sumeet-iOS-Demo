@@ -11,8 +11,8 @@ import Combine
 enum ContactListState {
     case empty
     case loading(source: ContactListLoadingSource)
-    case ready
-    case error(String)
+    case ready(source: ContactListLoadingSource)
+    case error(source: ContactListLoadingSource, message: String)
 }
 
 
@@ -50,7 +50,36 @@ class ContactListViewModel {
     
     // MARK: - Methods
     
+    func loadCache() {
+        
+        let cachedContacts = ContactCache.shared.load()
+        
+        if cachedContacts.isEmpty {
+            return
+        }
+        
+        contactModels = cachedContacts
+        contactItems = cachedContacts.compactMap { ContactListItem(contactModel: $0) }
+        state = .ready(source: .initial)
+    }
+    
     func loadContacts(_ loadingSource: ContactListLoadingSource) {
+        
+        // Avoid multiple fetches
+        if case .loading = state {
+            Logger.log("Tried to fetch contacts while already loading.", level: .debug)
+            return
+        }
+        
+        // Avoid offline fetching
+        guard ReachabilityHelper.shared.hasInternetAccess
+        else {
+            state = .error(
+                source: loadingSource,
+                message: Constants.Texts.Errors.noInternetConnection
+            )
+            return
+        }
         
         state = .loading(source: loadingSource)
         
@@ -60,17 +89,37 @@ class ContactListViewModel {
             guard let self else { return }
             
             if case .failure(let error) = completion {
-                self.state = .error(error.localizedDescription)
+                self.state = .error(
+                    source: loadingSource,
+                    message: error.localizedDescription
+                )
             }
         }
-        receiveValue: { [weak self] contacts in
+        receiveValue: { [weak self] receivedContacts in
             
             guard let self else { return }
             
-            // TODO: Handle infinite scroll & cache management
-            self.contactModels = contacts
-            self.contactItems = contacts.compactMap { ContactListItem(contactModel: $0) }
-            self.state = contacts.isEmpty ? .empty : .ready
+            // Load items from cache if needed
+            let contacts = receivedContacts.isEmpty ? ContactCache.shared.load() : receivedContacts
+            let contactItems = contacts.compactMap { ContactListItem(contactModel: $0) }
+            
+            // Update stored data
+            switch loadingSource {
+                    
+                case .initial, .refresh:
+                    self.contactModels = contacts
+                    self.contactItems = contactItems
+                    
+                case .infiniteScroll:
+                    self.contactModels.append(contentsOf: contacts)
+                    self.contactItems.append(contentsOf: contactItems)
+            }
+            
+            // Update cache data
+            ContactCache.shared.save(self.contactModels)
+            
+            // Update state
+            self.state = contacts.isEmpty ? .empty : .ready(source: loadingSource)
         }
         .store(in: &cancellables)
     }

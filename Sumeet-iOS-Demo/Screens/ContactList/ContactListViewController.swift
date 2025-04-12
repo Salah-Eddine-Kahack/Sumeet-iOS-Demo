@@ -15,6 +15,7 @@ class ContactListViewController: UIViewController {
     
     private var viewModel: ContactListViewModel
     private var cancellables = Set<AnyCancellable>()
+    private var isViewVisible: Bool = false
     
     // MARK: - UI Components
     
@@ -166,18 +167,20 @@ class ContactListViewController: UIViewController {
         
         setupUI()
         setupObservers()
-        // TODO: Add a load cache content
+        viewModel.loadCache()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
+        isViewVisible = true
         updateUI(for: viewModel.state, animated: false)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
+        isViewVisible = false
         refreshLoader.alpha = .zero
         refreshLoader.isHidden = true
     }
@@ -232,66 +235,92 @@ class ContactListViewController: UIViewController {
     
     private func setupObservers() {
         
-        viewModel.$contactItems
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] contacts in
-                guard let self else { return }
-                self.tableView.reloadSections([0], with: .fade)
-            }
-            .store(in: &cancellables)
+        // Listen to content changes combined with state updates
+        Publishers.CombineLatest(
+            viewModel.$contactItems,
+            viewModel.$state
+        )
+        .receive(on: DispatchQueue.main)
+        .sink { [weak self] contacts, state in
+            
+            guard let self else { return }
 
-        viewModel.$state
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] state in
-                guard let self else { return }
-                self.updateUI(for: state, animated: true)
+            // Determine reloading behavior
+            let shouldReloadWithoutAnimations: Bool = {
+                switch state {
+                    case .loading, .error:  return true
+                    case .ready(let source) where source == .infiniteScroll: return true
+                    default: return false
+                }
+            }()
+
+            // Reload the list
+            if shouldReloadWithoutAnimations {
+                tableView.reloadData()
             }
-            .store(in: &cancellables)
+            else if !contacts.isEmpty {
+                
+                tableView.reloadSections([.zero], with: .fade)
+                
+                tableView.scrollToRow(
+                    at: IndexPath(row: .zero, section: .zero),
+                    at: .top,
+                    animated: true
+                )
+            }
+        }
+        .store(in: &cancellables)
+        
+    
+        // Listen to state changes only
+        viewModel.$state
+        .receive(on: DispatchQueue.main)
+        .sink { [weak self] state in
+            guard let self else { return }
+            self.updateUI(for: state, animated: true)
+        }
+        .store(in: &cancellables)
     }
     
     private func updateUI(for state: ContactListState, animated: Bool) {
         
-        // Stop loadings if needed
-        if case .loading(_) = state {} else {
+        // Handle loaders
+        if case .loading(let type) = state {
+            switch type {
+                case .initial: loadButton.toggleLoading(on: true)
+                case .refresh: refreshLoader.toggleLoading(on: true)
+                default: break
+            }
+        }
+        else {
             loadButton.toggleLoading(on: false)
             refreshLoader.toggleLoading(on: false)
-            // TODO: Handle infinite scroll when implemented
         }
         
-        // Handle the rest
+        // Handle visibility
         switch state {
                 
             case .loading(let type):
+                refreshLoader.isHidden = !isViewVisible || type == .initial
                 tableView.isHidden = type == .initial
                 emptyView.isHidden = type != .initial
-                refreshLoader.isHidden = type == .initial
-                errorView.isHidden = true
-                
-                switch type {
-                    case .initial: loadButton.toggleLoading(on: true)
-                    case .refresh: refreshLoader.toggleLoading(on: true)
-                    case .infiniteScroll: break // TODO: Handle when infinite scroll is implemented
-                }
 
             case .ready:
-                tableView.alpha = tableView.isHidden ? .zero : 1.0
+                refreshLoader.isHidden = !isViewVisible
+                errorView.isHidden = true
                 tableView.isHidden = viewModel.contactItems.isEmpty
                 emptyView.isHidden = !viewModel.contactItems.isEmpty
-                refreshLoader.isHidden = false
-                errorView.isHidden = true
 
             case .empty:
-                tableView.isHidden = true
-                emptyView.alpha = emptyView.isHidden ? .zero : 1.0
-                emptyView.isHidden = false
                 refreshLoader.isHidden = true
-                errorView.alpha = errorView.isHidden ? .zero : 1.0
                 errorView.isHidden = true
+                tableView.isHidden = true
+                emptyView.isHidden = false
 
-            case .error(let message):
-                errorLabel.text = message
-                errorView.alpha = .zero
+            case .error(let source, let message):
+                refreshLoader.isHidden = !isViewVisible || source == .initial
                 errorView.isHidden = false
+                errorLabel.text = message
         }
                 
         // Animate changes
@@ -338,5 +367,19 @@ extension ContactListViewController: UITableViewDelegate {
     
         let contact = viewModel.contactItems[indexPath.row]
         viewModel.handleContactSelection(selectedContactItem: contact)
+    }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        
+        // Calculate distance from the bottom of the list
+        let contentOffsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let visibleHeight = scrollView.frame.size.height
+        let distanceFromBottom = contentHeight - contentOffsetY - visibleHeight
+
+        // Load when getting close to the bottom and not already loading
+        if distanceFromBottom < Constants.Sizes.ContactList.infiniteScrollThreshold {
+            viewModel.loadContacts(.infiniteScroll)
+        }
     }
 }

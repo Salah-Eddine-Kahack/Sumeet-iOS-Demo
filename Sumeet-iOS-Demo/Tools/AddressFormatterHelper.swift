@@ -14,7 +14,7 @@ struct AddressFormatterHelper {
         
         // Check street
         let streetComponents = [
-            "\(location.street.number)",
+            location.street.number > .zero ? "\(location.street.number)" : "",
             location.street.name
         ]
         .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
@@ -33,8 +33,22 @@ struct AddressFormatterHelper {
 
         // Format address
         let joinedAdress = addressComponents.joined(separator: ", ")
-        let fullAdress = joinedAdress.isEmpty ? "Unknown Galaxy" : joinedAdress
+        let fullAdress = joinedAdress.isEmpty ? Constants.Texts.Testing.unknownAddress : joinedAdress
         
         return fullAdress
+    }
+    
+    static func getCountryFlag(_ contact: ContactModel) -> String {
+        
+        let uppercasedCode = contact.countryCode.uppercased()
+        
+        guard uppercasedCode.count == 2
+        else {
+            return Constants.Texts.ContactDetail.unknownCountryFlag
+        }
+        
+        let scalarValues = uppercasedCode.unicodeScalars.map { 127397 + $0.value }
+        let countryFlag = String(scalarValues.map { Character(UnicodeScalar($0)!) })
+        return countryFlag
     }
 }

@@ -163,6 +163,7 @@ extension ButtonViews {
             addSubview(loadingBackgroundView, insets: .zero)
             
             // Setup labels
+            loadingLabel.alpha = .zero
             configureLabel(titleLabel, withText: title)
             configureLabel(loadingLabel, withText: Constants.Texts.loadingButtonTitle)
             addSubview(titleLabel, insets: Constants.Sizes.buttonEdgeInsets)
@@ -221,6 +222,7 @@ extension ButtonViews {
 
 extension ButtonViews {
     
+    /// Works like a UIButton
     final class LargeIconWithTitle: Base {
         
         // Properties
@@ -271,6 +273,7 @@ extension ButtonViews {
 
 extension ButtonViews {
     
+    /// Works like a UIButton
     final class LoaderWithIcon: Base {
         
         // Properties
