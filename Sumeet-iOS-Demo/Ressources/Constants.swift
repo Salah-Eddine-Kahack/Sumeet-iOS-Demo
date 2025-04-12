@@ -18,9 +18,10 @@ struct Constants {
         static let background = UIColor(named: "background")!
         static let contentBackground = UIColor(named: "contentBackground")!
         static let borderColor = UIColor(named: "border")!
-        static let buttonTitle = UIColor(named: "buttonTitle")!
+        static let buttonTitle = background
         static let criticalText = UIColor(named: "criticalText")!
         static let criticalBackground = UIColor(named: "criticalBackground")!
+        static let loadingBackground = UIColor(named: "loadingBackground")!
     }
 
     // MARK: - Sizes
@@ -36,7 +37,7 @@ struct Constants {
         static let largeCornerRadius: CGFloat = cornerRadius + regularSpacing
         static let shadowRadius: CGFloat = 6.0
         static let defaultFontSize: CGFloat = 16.0
-        static let mapViewHeight: CGFloat = 128.0
+        static let mapViewHeight: CGFloat = 200.0
         
         static let buttonEdgeInsets: UIEdgeInsets = .init(
             top: smallSpacing + tinySpacing,
@@ -45,7 +46,14 @@ struct Constants {
             right: smallSpacing + smallSpacing
         )
         
+        struct NavigationBar {
+            static let customButtonTopSpacing: CGFloat = 44.0
+            static let customButtonPadding: CGFloat = smallSpacing
+            static let customButtonIcon: CGFloat = 48.0
+        }
+        
         struct ContactList {
+            static let loadButtonWidth: CGFloat = 200.0
             static let thumbnailSize: CGFloat = 64.0
             static let thumbnailCornerRadius: CGFloat = thumbnailSize / 2.0
         }
@@ -63,6 +71,11 @@ struct Constants {
         static let email = UIImage(systemName: "envelope")!
         static let text = UIImage(systemName: "bubble")!
         static let noContacts = UIImage(systemName: "person.2.slash")!
+        
+        static let refresh = UIImage(
+            systemName: "arrow.trianglehead.counterclockwise.rotate.90",
+            withConfiguration: UIImage.SymbolConfiguration(weight: .heavy)
+        )!
     }
     
     // MARK: - Texts
@@ -74,12 +87,12 @@ struct Constants {
         static let emailNotConfiguredMessage: String = NSLocalizedString("It seems you haven't set up your email account. Would you like to set it up now?", comment: context)
         static let settingsAppName: String = NSLocalizedString("Settings", comment: context)
         static let cancelButtonTitle: String = NSLocalizedString("Cancel", comment: context)
+        static let loadingButtonTitle: String = NSLocalizedString("Loading...", comment: context)
         
         struct ContactList {
             private static let context: String = "contact-list"
             static let title: String = NSLocalizedString("Contacts", comment: context)
             static let emptyMessage: String = NSLocalizedString("No contacts found", comment: context)
-            static let noInternetMessage: String = NSLocalizedString("No internet connection, please try again later", comment: context)
             static let loadContactsButtonTitle: String = NSLocalizedString("Load contacts", comment: context)
         }
         
@@ -95,6 +108,11 @@ struct Constants {
             static let birthdayLabel: String = NSLocalizedString("Birthday:", comment: context)
             static let ageLabel: String = NSLocalizedString("Age:", comment: context)
             static let addressLabel: String = NSLocalizedString("Address:", comment: context)
+        }
+        
+        struct Errors {
+            static let mockDataLoadingFailed: String = NSLocalizedString("Failed to load mock data.", comment: "")
+            static let noInternetConnection: String = NSLocalizedString("No internet connection, please try again later", comment: context)
         }
     }
     

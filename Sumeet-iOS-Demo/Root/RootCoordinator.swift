@@ -20,7 +20,7 @@ class RootCoordinator {
     
     private let navigationController: UINavigationController
     private let contactService: ContactServiceProtocol
-    private let appEnvironment: AppEnvironment = .mock
+    private let appEnvironment: AppEnvironment = .real
     
     // MARK: - Life cycle
 

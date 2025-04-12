@@ -9,10 +9,28 @@ import Foundation
 import Combine
 
 
+// MARK: - Protocol
+
 protocol ContactServiceProtocol {
     func fetchContacts() -> AnyPublisher<[ContactModel], Error>
 }
 
+// MARK: - Error types
+
+enum ContactServiceError: LocalizedError {
+    
+    case failedToLoadMockData
+    case noInternet
+    
+    var errorDescription: String? {
+        switch self {
+            case .failedToLoadMockData: return Constants.Texts.Errors.mockDataLoadingFailed
+            case .noInternet: return Constants.Texts.Errors.noInternetConnection
+        }
+    }
+}
+
+// MARK: - Factory
 
 struct ServiceFactory {
     
@@ -25,6 +43,7 @@ struct ServiceFactory {
     }
 }
 
+// MARK: - Mock Service
 
 class MockContactService: ContactServiceProtocol {
     
@@ -33,36 +52,65 @@ class MockContactService: ContactServiceProtocol {
         guard let url = Constants.URLs.mockFileURL,
               let data = try? Data(contentsOf: url)
         else {
-            return Fail(
-                error: NSError(
-                    domain: "MockDataError",
-                    code: -1,
-                    userInfo: [NSLocalizedDescriptionKey: "Mock file not found"]
-                )
-            )
-            .eraseToAnyPublisher()
+            Logger.log("Cannot load mock file", level: .error)
+            
+            return Fail(error: ContactServiceError.failedToLoadMockData)
+                .eraseToAnyPublisher()
         }
 
         do {
             let response = try JSONDecoder().decode(ContactAPIResponse.self, from: data)
+            
             return Just(response.results)
-                   .setFailureType(to: Error.self)
-                   .eraseToAnyPublisher()
+                .setFailureType(to: Error.self)
+                .eraseToAnyPublisher()
         }
         catch {
+            Logger.log("Error decoding mock file: \(error)", level: .error)
+            
             return Fail(error: error)
-                   .eraseToAnyPublisher()
+                .eraseToAnyPublisher()
         }
     }
 }
 
+// MARK: - Real Service
 
 class ContactService: ContactServiceProtocol {
     
     func fetchContacts() -> AnyPublisher<[ContactModel], Error> {
         
-        Just([]) // TODO: Implement
-        .setFailureType(to: Error.self)
-        .eraseToAnyPublisher()
+        guard let url = Constants.URLs.apiURL else {
+            Logger.log("Invalid API URL", level: .error)
+            
+            return Fail(error: URLError(.badURL))
+                .eraseToAnyPublisher()
+        }
+        
+        if !ReachabilityHelper.shared.hasInternetAccess {
+            return Fail(error: ContactServiceError.noInternet).eraseToAnyPublisher()
+        }
+        
+        return URLSession.shared.dataTaskPublisher(for: url)
+            .tryMap {
+                guard let response = $0.response as? HTTPURLResponse,
+                      (200..<300).contains(response.statusCode)
+                else {
+                    Logger.log("Bad server response", level: .error)
+                    throw URLError(.badServerResponse)
+                }
+                return $0.data
+            }
+            .decode(type: ContactAPIResponse.self, decoder: JSONDecoder())
+            .map { $0.results }
+            .eraseToAnyPublisher()
+            .catch { error -> AnyPublisher<[ContactModel], Error> in
+                
+                Logger.log("Failed to fetch contacts: \(error)", level: .error)
+                
+                return Fail(error: error)
+                    .eraseToAnyPublisher()
+            }
+            .eraseToAnyPublisher()
     }
 }

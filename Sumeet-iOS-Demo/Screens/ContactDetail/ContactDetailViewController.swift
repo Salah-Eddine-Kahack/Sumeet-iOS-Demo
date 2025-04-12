@@ -37,21 +37,21 @@ class ContactDetailViewController: UIViewController {
     
     private lazy var actionsStackView: UIStackView = {
  
-        let textButtonView = ButtonViews.LargeIcon(
+        let textButtonView = ButtonViews.LargeIconWithTitle(
             title: Constants.Texts.ContactDetail.textButton,
             icon: Constants.Icons.text
         ) { [unowned self] in
             self.viewModel.handleTextContact()
         }
         
-        let callButtonView = ButtonViews.LargeIcon(
+        let callButtonView = ButtonViews.LargeIconWithTitle(
             title: Constants.Texts.ContactDetail.callButton,
             icon: Constants.Icons.phone
         ) { [unowned self] in
             self.viewModel.handleCallContact()
         }
         
-        let emailButtonView = ButtonViews.LargeIcon(
+        let emailButtonView = ButtonViews.LargeIconWithTitle(
             title: Constants.Texts.ContactDetail.emailButton,
             icon: Constants.Icons.email
         ) { [unowned self] in
@@ -99,7 +99,13 @@ class ContactDetailViewController: UIViewController {
         tableView.dataSource = self
         tableView.separatorStyle = .none
         tableView.rowHeight = UITableView.automaticDimension
-        tableView.contentInset.top = Constants.Sizes.regularSpacing
+        
+        tableView.contentInset = UIEdgeInsets(
+            top: Constants.Sizes.regularSpacing,
+            left: .zero,
+            bottom: Constants.Sizes.regularSpacing,
+            right: .zero
+        )
         
         tableView.register(
             ContactDetailTableViewCell.self,

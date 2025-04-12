@@ -8,6 +8,21 @@
 import Combine
 
 
+enum ContactListState {
+    case empty
+    case loading(source: ContactListLoadingSource)
+    case ready
+    case error(String)
+}
+
+
+enum ContactListLoadingSource {
+    case initial
+    case refresh
+    case infiniteScroll
+}
+
+
 class ContactListViewModel {
     
     typealias ContactSelectedCallback = (ContactModel) -> Void
@@ -20,9 +35,8 @@ class ContactListViewModel {
     
     // MARK: - Published properties
     
-    @Published var contacts: [ContactListItem] = []
-    @Published var isLoading: Bool = false
-    @Published var errorMessage: String?
+    @Published var contactItems: [ContactListItem] = []
+    @Published var state: ContactListState = .empty
     
     // MARK: - Internal properties
     
@@ -36,28 +50,27 @@ class ContactListViewModel {
     
     // MARK: - Methods
     
-    func loadContacts() {
+    func loadContacts(_ loadingSource: ContactListLoadingSource) {
         
-        isLoading = true
+        state = .loading(source: loadingSource)
         
         contactService.fetchContacts()
         .sink { [weak self] completion in
             
             guard let self else { return }
             
-            switch completion {
-                case .failure(let error): self.errorMessage = error.localizedDescription
-                case .finished: break
+            if case .failure(let error) = completion {
+                self.state = .error(error.localizedDescription)
             }
-            
-            self.isLoading = false
         }
         receiveValue: { [weak self] contacts in
             
             guard let self else { return }
             
+            // TODO: Handle infinite scroll & cache management
             self.contactModels = contacts
-            self.contacts = contacts.compactMap { ContactListItem(contactModel: $0) }
+            self.contactItems = contacts.compactMap { ContactListItem(contactModel: $0) }
+            self.state = contacts.isEmpty ? .empty : .ready
         }
         .store(in: &cancellables)
     }
@@ -66,7 +79,7 @@ class ContactListViewModel {
     
     func handleContactSelection(selectedContactItem: ContactListItem) {
         
-        if let index = contacts.firstIndex(where: { $0.id == selectedContactItem.id }) {
+        if let index = contactItems.firstIndex(where: { $0.id == selectedContactItem.id }) {
             
             let selectedContactModel = contactModels[index]
             contactSelectedCallback?(selectedContactModel)

@@ -148,27 +148,16 @@ class ContactListTableViewCell: UITableViewCell {
         
         if highlighted {
             
-            UIView.animate(
-                withDuration: 0.25,
-                delay: .zero,
-                options: [.curveEaseOut, .allowUserInteraction],
-                animations: {
-                    self.contentView.alpha = 0.7
-                    self.transform = CGAffineTransform(scaleX: 0.99, y: 0.98)
-                },
-                completion: { _ in
-                    UIView.animate(
-                        withDuration: 0.25,
-                        delay: .zero,
-                        options: [.curveEaseOut, .allowUserInteraction],
-                        animations: {
-                            self.contentView.alpha = 1
-                            self.transform = .identity
-                        },
-                        completion: nil
-                    )
+            UIHelper.animateUIChanges(duration: .short) {
+                self.contentView.alpha = 0.7
+                self.transform = CGAffineTransform(scaleX: 0.99, y: 0.98)
+            }
+            completion: {
+                UIHelper.animateUIChanges(duration: .short) {
+                    self.contentView.alpha = 1
+                    self.transform = .identity
                 }
-            )
+            }
         }
     }
 }

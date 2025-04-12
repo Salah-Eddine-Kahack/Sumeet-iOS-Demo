@@ -24,8 +24,7 @@ struct Views {
         
         private lazy var valueLabel: UILabel = {
             let valueLabel = UILabel()
-            valueLabel.font = .preferredFont(forTextStyle: .headline)
-            valueLabel.textColor = Constants.Colors.primary
+            valueLabel.textColor = Constants.Colors.secondary
             valueLabel.numberOfLines = .zero
             return valueLabel
         }()
